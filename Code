@@ -1,0 +1,113 @@
+#___MAPPING___________________________________________________________________________________________________________________________
+#Index reference genomes using BWA
+module load bwa
+#example
+#bwa index [GENOME_REFERENCE.fasta]"
+sbatch -t 15000 --wrap="bwa index TAIR10_chr_all.fasta"
+sbatch -t 15000 --wrap="bwa index Ler_Assembly_genomic.fasta"
+#map reads to genome index with BWA
+module load bwa
+#example
+#bwa mem -t 8 [GENOME_INDEX] [SEQFILE_R1.fastq.gz] [SEQFILE_R2.fastq.gz] > [OUTPUT.sam]"
+sbatch -t 15000 --cpus-per-task=8 --wrap="bwa mem -t 8 TAIR10_chr_all.fasta DSJ_RLP-10_R1.fastq.gz DSJ_RLP-10_R2.fastq.gz > rlp10_Col.sam"
+sbatch -t 15000 --cpus-per-task=8 --wrap="bwa mem -t 8 TAIR10_chr_all.fasta DSJ_C2-1_R1.fastq.gz DSJ_C2-1_R2.fastq.gz > C2-1_Col.sam"
+sbatch -t 15000 --cpus-per-task=8 --wrap="bwa mem -t 8 Ler_Assembly_genomic.fasta DSJ_RLP-10_R1.fastq.gz DSJ_RLP-10_R2.fastq.gz > rlp10_Ler.sam"
+sbatch -t 15000 --cpus-per-task=8 --wrap="bwa mem -t 8 Ler_Assembly_genomic.fasta DSJ_C2-1_R1.fastq.gz DSJ_C2-1_R2.fastq.gz > C2-1_Ler.sam"
+sbatch -t 15000 --cpus-per-task=8 --wrap="bwa mem -t 8 TAIR10_chr_all.fasta term_pool_R1.fastq term_pool_R2.fastq > term_Col.sam"
+sbatch -t 15000 --cpus-per-task=8 --wrap="bwa mem -t 8 TAIR10_chr_all.fasta supp_pool_R1.fastq supp_pool_R2.fastq > supp_Col.sam"
+sbatch -t 15000 --cpus-per-task=8 --wrap="bwa mem -t 8 Ler_Assembly_genomic.fasta term_pool_R1.fastq term_pool_R2.fastq > term_Ler.sam"
+sbatch -t 15000 --cpus-per-task=8 --wrap="bwa mem -t 8 Ler_Assembly_genomic.fasta supp_pool_R1.fastq supp_pool_R2.fastq > supp_Ler.sam"
+
+
+#____SNP_CALLING__________________________________________________________________________________________________________________________
+#cleanup, sort and convert SAM file to BAM file with SAMTOOLS
+module load samtools
+sbatch -t 15000 --wrap="samtools fixmate -O bam rlp10_Col.sam rlp10_Col_fixmate.bam"
+sbatch -t 15000 --wrap="samtools sort -o rlp10_Col_sorted.bam -O bam rlp10_Col_fixmate.bam"
+
+sbatch -t 15000 --wrap="samtools fixmate -O bam rlp10_Col.sam rlp10_Col_fixmate.bam"
+sbatch -t 15000 --wrap="samtools fixmate -O bam rlp10_Ler.sam rlp10_Ler_fixmate.bam"
+sbatch -t 15000 --wrap="samtools fixmate -O bam C2-1_Col.sam C2-1_Col_fixmate.bam"
+sbatch -t 15000 --wrap="samtools fixmate -O bam C2-1_Ler.sam C2-1_Ler_fixmate.bam"
+sbatch -t 15000 --wrap="samtools fixmate -O bam term_Col.sam term_Col_fixmate.bam"
+sbatch -t 15000 --wrap="samtools fixmate -O bam term_Ler.sam term_Ler_fixmate.bam"
+sbatch -t 15000 --wrap="samtools fixmate -O bam supp_Col.sam supp_Col_fixmate.bam"
+sbatch -t 15000 --wrap="samtools fixmate -O bam supp_Ler.sam supp_Ler_fixmate.bam"
+
+
+sbatch -t 15000 --wrap="samtools sort -o rlp10_Col_sorted.bam -O bam rlp10_Col_fixmate.bam"
+sbatch -t 15000 --wrap="samtools sort -o rlp10_Ler_sorted.bam -O bam rlp10_Ler_fixmate.bam"
+sbatch -t 15000 --wrap="samtools sort -o C2-1_Col_sorted.bam -O bam C2-1_Col_fixmate.bam"
+sbatch -t 15000 --wrap="samtools sort -o C2-1_Ler_sorted.bam -O bam C2-1_Ler_fixmate.bam"
+sbatch -t 15000 --wrap="samtools sort -o term_Col_sorted.bam -O bam term_Col_fixmate.bam"
+sbatch -t 15000 --wrap="samtools sort -o term_Ler_sorted.bam -O bam term_Ler_fixmate.bam"
+sbatch -t 15000 --wrap="samtools sort -o supp_Col_sorted.bam -O bam supp_Col_fixmate.bam"
+sbatch -t 15000 --wrap="samtools sort -o supp_Ler_sorted.bam -O bam supp_Ler_fixmate.bam"
+
+
+
+#call SNPs, indels, deletes using mpileup function of samtools then index
+module load samtools
+sbatch -t 15000 --wrap="bcftools mpileup -Ou -f TAIR10_chr_all.fasta rlp10_Col_sorted.bam | bcftools call -vmO z -o rlp10_Col.vcf.gz"
+sbatch -t 15000 --wrap="tabix -p vcf rlp10_Col.vcf.gz"
+
+sbatch -t 15000 --wrap="bcftools mpileup -Ou -f TAIR10_chr_all.fasta rlp10_Col_sorted.bam | bcftools call -vmO z -o rlp10_Col.vcf.gz"
+sbatch -t 15000 --wrap="bcftools mpileup -Ou -f TAIR10_chr_all.fasta C2-1_Col_sorted.bam | bcftools call -vmO z -o C2-1_Col.vcf.gz"
+sbatch -t 15000 --wrap="bcftools mpileup -Ou -f TAIR10_chr_all.fasta term_Col_sorted.bam | bcftools call -vmO z -o term_Col.vcf.gz"
+sbatch -t 15000 --wrap="bcftools mpileup -Ou -f TAIR10_chr_all.fasta supp_Col_sorted.bam | bcftools call -vmO z -o supp_Col.vcf.gz"
+sbatch -t 15000 --wrap="bcftools mpileup -Ou -f Ler_Assembly_genomic.fasta rlp10_Ler_sorted.bam | bcftools call -vmO z -o rlp10_Ler.vcf.gz"
+sbatch -t 15000 --wrap="bcftools mpileup -Ou -f Ler_Assembly_genomic.fasta C2-1_Ler_sorted.bam | bcftools call -vmO z -o C2-1_Ler.vcf.gz"
+sbatch -t 15000 --wrap="bcftools mpileup -Ou -f Ler_Assembly_genomic.fasta term_Ler_sorted.bam | bcftools call -vmO z -o term_Ler.vcf.gz"
+sbatch -t 15000 --wrap="bcftools mpileup -Ou -f Ler_Assembly_genomic.fasta supp_Ler_sorted.bam | bcftools call -vmO z -o supp_Ler.vcf.gz"
+
+sbatch -t 15000 --wrap="tabix -p vcf rlp10_Col.vcf.gz"
+sbatch -t 15000 --wrap="tabix -p vcf C2-1_Col.vcf.gz"
+sbatch -t 15000 --wrap="tabix -p vcf term_Col.vcf.gz"
+sbatch -t 15000 --wrap="tabix -p vcf supp_Col.vcf.gz"
+sbatch -t 15000 --wrap="tabix -p vcf rlp10_Ler.vcf.gz"
+sbatch -t 15000 --wrap="tabix -p vcf C2-1_Ler.vcf.gz"
+sbatch -t 15000 --wrap="tabix -p vcf term_Ler.vcf.gz"
+sbatch -t 15000 --wrap="tabix -p vcf supp_Ler.vcf.gz"
+
+
+
+
+
+
+
+#____FILTERING__________________________________________________________________________________________________________________________
+###Important####
+#filter out in common SNPs of F2 population with parental line using samtools
+module load samtools
+sbatch -t 15000 --wrap="bcftools index term_Col.vcf.gz"
+sbatch -t 15000 --wrap="bcftools index supp_Col.vcf.gz"
+sbatch -t 15000 --wrap="bcftools index rlp10_Col.vcf.gz" 
+sbatch -t 15000 --wrap="bcftools index C2-1_Col.vcf.gz" 
+sbatch -t 15000 --wrap="bcftools index rlp10_Ler.vcf.gz" 
+sbatch -t 15000 --wrap="bcftools index C2-1_Ler.vcf.gz" 
+sbatch -t 15000 --wrap="bcftools index term_Ler.vcf.gz" 
+sbatch -t 15000 --wrap="bcftools index supp_Ler.vcf.gz" 
+
+sbatch -t 15000 --wrap="bcftools isec -p term_rlp term_Col.vcf.gz rlp10_Col.vcf.gz"
+sbatch -t 15000 --wrap="bcftools isec -p supp_rlp supp_Col.vcf.gz rlp10_Col.vcf.gz"
+sbatch -t 15000 --wrap="bcftools isec -p term_C2-1 term_Ler.vcf.gz C2-1_Ler.vcf.gz"
+sbatch -t 15000 --wrap="bcftools isec -p supp_C2-1 supp_Ler.vcf.gz C2-1_Ler.vcf.gz"
+
+
+#____EXTRACTING_SNP_DENSITY__________________________________________________________________________________________________________________________
+#count SNP density across genome using file with unique SNPs comp to parent of same background using vcftools
+module load vcftools
+
+change directory to folder
+#bin at 250000bp intervals
+sbatch -t 15000 --wrap="vcftools --vcf 0000.vcf --out termF2rlpbg --SNPdensity 250000"
+sbatch -t 15000 --wrap="vcftools --vcf 0000.vcf --out suppF2rlpbg --SNPdensity 250000"
+sbatch -t 15000 --wrap="vcftools --vcf 0000.vcf --out termF2c2bg --SNPdensity 250000"
+sbatch -t 15000 --wrap="vcftools --vcf 0000.vcf --out suppF2c2bg --SNPdensity 250000"
+
+module load vcftools
+#bin at 10000bp intervals
+sbatch -t 15000 --wrap="vcftools --vcf 0000.vcf --out termF2rlpbg_fine --SNPdensity 10000"
+sbatch -t 15000 --wrap="vcftools --vcf 0000.vcf --out suppF2rlpbg_fine --SNPdensity 10000"
+sbatch -t 15000 --wrap="vcftools --vcf 0000.vcf --out termF2c2bg_fine --SNPdensity 10000"
+sbatch -t 15000 --wrap="vcftools --vcf 0000.vcf --out suppF2c2bg_fine --SNPdensity 10000"
