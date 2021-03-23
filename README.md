@@ -4,6 +4,7 @@ This file is for the honors thesis of Kylie VanDerMolen at UNC-Chapel Hill. The 
 
 Sequence/alignment map tools (SAMtools): 
 Li, H., Handsaker, B., Wyosoker, A., Fennell, T., Ruan, J., Homer, N., Marth, G., Abecasis, G., Durbin, R., and 1000 Genome Project Data Processing Subgroup. The Sequence alignment/map (SAM) format and SAMtools. Bioinformatics. 2009; 25:2078-2079.
+
 Li, H. A statistical framework for SNP calling, mutation discovery, association mapping and population genetical parameter estimation from sequencing data. Bioinformatics. 2011; 27:2987-2993.
 
 Burrows-Wheeler Aligner (BWA):
